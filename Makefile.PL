@@ -7,7 +7,7 @@ WriteMakefile(
     'PREREQ_PM'		=> {
 			    HTML::Entities => 0,
 			    HTML::Parser => 3.25,
-			    Test::More => 0,
+			    Test::More => 0.32,
 			   }, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM => 'TableParser.pm', # retrieve abstract from module

@@ -1,5 +1,10 @@
 Revision history for Perl extension HTML::TableParser.
 
+0.31  Sat Apr 20 01:56:28 EDT 2002
+        - was using features of Test::More v0.32 and didn't
+	  specify a version in Makefile.PL, causing problems
+	  with earlier versions.  Ooops.
+
 0.3   Wed Apr 17 11:26:31 EDT 2002
 	- specification of ids and column names in matches has been
 	  extended and simplified.  id and cols now may take

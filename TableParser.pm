@@ -608,7 +608,7 @@ use HTML::Parser;
 
 our @ISA = qw(HTML::Parser);
 
-our $VERSION = '0.3';
+our $VERSION = '0.31';
 
 # Preloaded methods go here.
 

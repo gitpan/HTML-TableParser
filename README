@@ -1,6 +1,6 @@
-		    =============================
-		    HTML::TableParser Version 0.3
-		    =============================
+		    ==============================
+		    HTML::TableParser Version 0.31
+		    ==============================
 
 NAME
     HTML::TableParser - Extract data from an HTML table
@@ -36,6 +36,10 @@ DEPENDENCIES
 CHANGES
 
     Major changes only. See the Changes file for more details.
+
+    0.31
+    ----
+    - packaging problems
 
     0.3
     ---
