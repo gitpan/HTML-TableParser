@@ -1,65 +1,9 @@
 Revision history for Perl extension HTML::TableParser.
 
-0.31  Sat Apr 20 01:56:28 EDT 2002
-        - was using features of Test::More v0.32 and didn't
-	  specify a version in Makefile.PL, causing problems
-	  with earlier versions.  Ooops.
+0.01  Wed May  1 20:39:44 2002
+	- original version; created by h2xs 1.21 with options
+		-X HTML::TableParser
 
-0.3   Wed Apr 17 11:26:31 EDT 2002
-	- specification of ids and column names in matches has been
-	  extended and simplified.  id and cols now may take
-	  arrayrefs of things to match. colre is deprecated.
-
-	- matches can be made using literals, subroutines and qr//
-	  created regexps.  the latter two are automatically recognized.
-
-	- explicit exclusions and skipping of tables is now possible
-
-	- improved docs (a bit)
-
-	- decode_entitites was being called too late in fix_texts,
-	  so Trim was less than effectual.
-
-	- added DecodeNBSP attribute to fix nbsp decoding issues.
-
-	- callbacks for methods and classes can be turned off
-	  by assigning an undef value to the appropriate key in the
-	  table request.  
-
-	- the warn callback is also passed the line number now.
-	  this is an incompatible change in the API.
-
-0.2   Wed Jan 30 19:54:14 EST 2002
-
-        - one could not use id=DEFAULT as a fall through if a column 
-          name match didn't work.  in fact, one couldn't intersperse
-          id's in a request list; they all had to be at the beginning.
-          there's now a well defined order in how requests are
-          processed.
-
-	- fixing this uncovered another subtle bug.  a header line was
-	  originally recognized only after finishing the first
-	  non-header line.  this lead to the situation that if an
-	  embedded table was in the first non-header row, it would be
-	  matched against column name match requests before the enclosing
-	  table, because it would be completely parsed before the
-	  enclosing table's header was even recognized.  to fix this,
-	  we finish off a header in the first non-header column if the
-	  previous row was a header and the current row isn't a
-	  header.
-	
-	- added an embedded table test in t/contents.t
-
-	- format of comparison data was wrong. wanted embedded tab
-	  between columns, got character sequence '\t'
-	
-	- checking whether a request had been used was 99% foobared.
-
-
-0.1   Wed Dec 12 17:12:22 EST 2001
-        - total rewrite.  the only thing left of the old
-	code is probably the header/row column&row spanning code.
-
-0.01  Fri Dec 10 14:36:39 1999
-	- original version; created by h2xs 1.18
+0.10 Wed May 7 09:49:23 2002
+  - First version released.
 
