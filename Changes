@@ -1,0 +1,9 @@
+Revision history for Perl extension HTML::TableParser.
+
+0.1   Wed Dec 12 17:12:22 EST 2001
+        - total rewrite.  the only thing left of the old
+	code is probably the header/row column&row spanning code.
+
+0.01  Fri Dec 10 14:36:39 1999
+	- original version; created by h2xs 1.18
+
