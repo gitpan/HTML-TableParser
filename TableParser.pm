@@ -80,46 +80,70 @@ sub new
     # for column name matches, we don't want to do the callback;
     # in that case $self->{req} isn't set and callback() won't
     # actually make the call.
-    $self->callback( 'start', $self->{start_line} ) if $self->{process};
+    $self->callback( 'start', $self->{start_line} ) 
+		     if $self->{process};
   }
 
   $self;
 }
 
-# see if the table id matches a requested table.  sets $self->{process}
-# and $self->{req}.
+
 sub match_id
 {
   my $self = shift;
 
+  my $req;
+
   $self->{process} = 0;
+  $self->{req} = undef;
 
-  for my $req ( @{$self->{reqs}} )
+  # 1. look for explicit id matches
+  # 2. if no explicit id match, use header matches
+  # 3. if no header matches, use DEFAULT
+  # 4. if no DEFAULT, no match
+
+  # 1. explicit id.
+  # match if id is correct and we can reuse the request if it has already 
+  # been used
+  if ( 
+       my ( $req ) = grep { 
+	                    defined $_->{id} &&
+			    $self->{id} eq $_->{id} &&
+			    ! ( $_->{match} && ! $_->{MultiMatch} );
+			  }
+                            @{$self->{reqs}} )
   {
-
-    # if the id's match, or the request id is DEFAULT, we match
-    if ( defined $req->{id} && 
-	( $self->{id} eq $req->{id} || $req->{id} eq 'DEFAULT' ) )
-    {
-      next if $self->{req}{match} && ! $self->{req}{MultiMatch};
-      $self->match_req( $req );
-      last;
-    }
-
-    # we're going for a header match; must delay decision until
-    # header is read in.  must set {process} so we don't turn
-    # off parser, but don't set {req}, so don't try doing callbacks.
-    elsif (
-	   ( exists $req->{cols_hash} && keys %{$req->{cols_hash}} ) ||
-	   ( exists $req->{colre}       && @{$req->{colre}}  )
-	  )
-    {
-      next if $self->{req}{match} && ! $self->{req}{MultiMatch};
-      $self->{process} = 1;
-      $self->{req} = undef;
-      last;
-    }
+    $self->match_req( $req );
+    return;
   }
+
+  # 2. header match.
+  # don't set {req}, as that'll trigger callbacks and we're not sure
+  # this is a match yet
+
+  if ( grep { 
+              ( exists $_->{cols_hash} && keys %{$_->{cols_hash}} ) ||
+	      ( exists $_->{colre}     &&      @{$_->{colre}    } )
+	    } @{$self->{reqs}}
+     )
+  {
+    $self->{process} = 1;
+    $self->{req} = undef;
+    return;
+  }
+
+  # 3. DEFAULT match
+  if ( my ( $req ) = 
+       grep { defined $_->{id} && 
+	      $_->{id} eq 'DEFAULT' &&
+              ! ( $_->{match} && ! $_->{MultiMatch} ) }
+       @{$self->{reqs}} )
+  {
+    $self->match_req( $req );
+    return;
+  }
+
+  # 4. out of luck. no match.
 }
 
 # we've pulled in a header; does it match against one of the requests?
@@ -127,8 +151,20 @@ sub match_hdr
 {
   my ( $self, @cols ) = @_;
 
+
+  # 1. check header matches
+  # 2. if no header matches, use DEFAULT id
+  # 3. if no DEFAULT, no match
+
+
+  # 1. check header matches
   for my $req ( @{$self->{reqs}} )
   {
+    # only interested in cols_hash and colre here
+    next unless exists $req->{cols_hash} || exists $req->{colre};
+
+    # can't use use-once request if it's used.
+    next if $req->{match} && ! $req->{MultiMatch};
 
     # need to do this so fix_texts picks up the request's data edit
     # attributes
@@ -157,6 +193,19 @@ sub match_hdr
       }
     }
   }
+
+  # 2. DEFAULT match
+  if ( my ( $req ) = 
+       grep { defined $_->{id} && 
+	      $_->{id} eq 'DEFAULT' &&
+              ! ( $_->{match} && ! $_->{MultiMatch} ) }
+       @{$self->{reqs}} )
+  {
+    $self->match_req( $req );
+    return 1;
+  }
+
+  # 3. if no DEFAULT, no match
 
   0;
 }
@@ -242,6 +291,17 @@ sub start_column
     $self->callback( 'warn', "<td> or <th> without <tr> at line $line\n" );
     $self->start_row( {}, $line );
   }
+
+  # even weirder.  if the last row was a header we have to process it now,
+  # rather than waiting until the end of this row, as there might be
+  # a table in one of the cells in this row and if the enclosing table
+  # was using a column match/re, we won't match it's header until after
+  # the enclosed table is completely parsed.  this is bad, as it may
+  # grab a match (if there's no multimatch) meant for the enclosing table.
+
+  # if we're one row past the header, we're done with the header
+  $self->finish_header()
+    if ! $self->{in_hdr} && $self->{prev_hdr};
 
   $self->{col} = { attr =>  { %$attr}  };
   $self->{col}{attr}{colspan} ||= 1;
@@ -456,7 +516,7 @@ use HTML::Parser;
 
 our @ISA = qw(HTML::Parser);
 
-our $VERSION = '0.1';
+our $VERSION = '0.2';
 
 # Preloaded methods go here.
 
@@ -996,10 +1056,34 @@ containing a single reqular expression
 
 =back
 
-More than one of these may be used for a single table request, and
-a request may match more than one table.  By default a request is
-used only once; set the C<MultiMatch> attribute to enable multiple
-matches per request.
+More than one of these may be used for a single table request. A a
+request may match more than one table.  By default a request is used
+only once (even the C<DEFAULT> id match!). Set the C<MultiMatch>
+attribute to enable multiple matches per request.
+
+When attempting to match a table, the following steps are taken:
+
+=over 8
+
+=item 1
+
+The table id is compared to the requests which contain an explicit id
+match.  The first such match is used (in the order given in the passed
+array).
+
+=item 2
+
+If no explicit id match is found, column name matches are attempted.
+The first such match is used (in the order given in the passed array)
+
+=item 3
+
+If no column name match is found (or there were none requested),
+the request with an B<id> match of C<DEFAULT> is used.
+
+=back
+
+B<Callbacks>
 
 Callback functions are specified with the callback attributes
 C<start>, C<end>, C<hdr>, C<row>, and C<warn>.  They should be set to

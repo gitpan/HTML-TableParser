@@ -1,5 +1,32 @@
 Revision history for Perl extension HTML::TableParser.
 
+0.2   Wed Jan 30 19:54:14 EST 2002
+
+        - one could not use id=DEFAULT as a fall through if a column 
+          name match didn't work.  in fact, one couldn't intersperse
+          id's in a request list; they all had to be at the beginning.
+          there's now a well defined order in how requests are
+          processed.
+
+	- fixing this uncovered another subtle bug.  a header line was
+	  originally recognized only after finishing the first
+	  non-header line.  this lead to the situation that if an
+	  embedded table was in the first non-header row, it would be
+	  matched against column name match requests before the enclosing
+	  table, because it would be completely parsed before the
+	  enclosing table's header was even recognized.  to fix this,
+	  we finish off a header in the first non-header column if the
+	  previous row was a header and the current row isn't a
+	  header.
+	
+	- added an embedded table test in t/contents.t
+
+	- format of comparison data was wrong. wanted embedded tab
+	  between columns, got character sequence '\t'
+	
+	- checking whether a request had been used was 99% foobared.
+
+
 0.1   Wed Dec 12 17:12:22 EST 2001
         - total rewrite.  the only thing left of the old
 	code is probably the header/row column&row spanning code.
