@@ -1,5 +1,8 @@
 Revision history for Perl extension HTML::TableParser.
 
+0.33  Tue Sep  3 14:15:13 EDT 2002
+        - MANIFEST was out of date.  oops.
+
 0.32  Tue Sep  3 11:32:20 EDT 2002
         - extra </table> tags were not handled properly. it now
 	  croaks if it hits an extra </table> tag.

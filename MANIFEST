@@ -39,6 +39,8 @@ t/class.t
 t/common.pl
 t/contents.t
 t/counts.pl
+t/end_table.t
 t/funcs.t
 t/methods.t
 t/req_order.t
+tdata/end_table.html
