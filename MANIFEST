@@ -34,6 +34,7 @@ data/table2.Default.data
 data/table2.Trim.data
 data/table2.hdr
 data/table2.html
+t/class-01.t
 t/class.t
 t/common.pl
 t/contents.t

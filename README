@@ -1,5 +1,5 @@
 		    =============================
-		    HTML::TableParser Version 0.2
+		    HTML::TableParser Version 0.3
 		    =============================
 
 NAME
@@ -37,6 +37,19 @@ CHANGES
 
     Major changes only. See the Changes file for more details.
 
+    0.3
+    ---
+
+    - table matching via id and column names is now more flexible and
+      simplified.  The id and cols request keywords now take literals,
+      regexps (via qr//), and subroutines (which are called to determine
+      if a table matches) They can also take lists of matches.
+
+    - colre is deprecated and will be removed eventually
+
+    - requests can now explicitly exclude particular tables.  tables
+      can now be explicitly skipped.
+
     0.2
     ---
 
@@ -53,7 +66,7 @@ CHANGES
 
 COPYRIGHT AND LICENCE
 
-    Copyright (C) 2001 Smithsonian Astrophysical Observatory.
+    Copyright (C) 2001-2002 Smithsonian Astrophysical Observatory.
     All rights reserved.
 
     This program is free software; you can redistribute it and/or

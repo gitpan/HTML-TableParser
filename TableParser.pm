@@ -49,6 +49,7 @@ sub new
 	      line	=> undef,	# line in file of current row
 	      start_line => undef,	# line in file of table start
 	      req	=> undef,	# the matching table request
+	      exclreqs  => {},		# the requests which exlude this table
 	     };
 
   bless $self, $class;
@@ -68,6 +69,7 @@ sub new
   else
   {
     $ids->[-1]++;
+    $self->{oids} = [ @$ids ];
     $self->{ids} = [ @$ids, 0 ];
     $self->{id} =  join( '.', grep { $_ != 0 } @{$ids} );
 
@@ -91,59 +93,163 @@ sub new
 sub match_id
 {
   my $self = shift;
-
-  my $req;
-
+  
   $self->{process} = 0;
   $self->{req} = undef;
-
+  
   # 1. look for explicit id matches
   # 2. if no explicit id match, use header matches
   # 3. if no header matches, use DEFAULT
   # 4. if no DEFAULT, no match
-
+  
   # 1. explicit id.
-  # match if id is correct and we can reuse the request if it has already 
-  # been used
-  if ( 
-       my ( $req ) = grep { 
-	                    defined $_->{id} &&
-			    $self->{id} eq $_->{id} &&
-			    ! ( $_->{match} && ! $_->{MultiMatch} );
-			  }
-                            @{$self->{reqs}} )
+  
+  my ( $skip, $req );
+  
+  ( $skip, $req ) =
+    req_match_id( $self->{reqs}, $self->{id}, $self->{oids}, 
+		  $self->{exclreqs} );
+  
+  # did we match a skip table request?
+  return if $skip;
+  
+  if ( $req )
   {
     $self->match_req( $req );
     return;
   }
-
+  
+  
   # 2. header match.
   # don't set {req}, as that'll trigger callbacks and we're not sure
   # this is a match yet
-
-  if ( grep { 
-              ( exists $_->{cols_hash} && keys %{$_->{cols_hash}} ) ||
-	      ( exists $_->{colre}     &&      @{$_->{colre}    } )
-	    } @{$self->{reqs}}
-     )
+  
+  if ( grep { @{$_->{cols}} } @{$self->{reqs}})
   {
     $self->{process} = 1;
     $self->{req} = undef;
     return;
   }
-
+  
   # 3. DEFAULT match
-  if ( my ( $req ) = 
-       grep { defined $_->{id} && 
-	      $_->{id} eq 'DEFAULT' &&
-              ! ( $_->{match} && ! $_->{MultiMatch} ) }
-       @{$self->{reqs}} )
+  ( $skip, $req ) =
+    req_match_id( $self->{reqs}, 'DEFAULT', $self->{oids}, $self->{exclreqs} );
+  
+  # did we match a skip table request? Does this make sense for DEFAULT?
+  return if $skip;
+  
+  if ( $req )
   {
     $self->match_req( $req );
     return;
   }
-
+  
   # 4. out of luck. no match.
+}
+
+# determine if a request matches an id.  requests should
+# be real objects, but until then...
+sub req_match_id
+{
+  my ( $reqs, $id, $oids, $excluded ) = @_;
+  
+  for my $req ( @$reqs )
+  {
+    # if we've already excluded this request, don't bother again.
+    # this is needed for id = DEFAULT passes where we've previously
+    # excluded based on actual table id and should again.
+    next if exists $excluded->{$req};
+    
+    # bail if this request has already matched and we're not
+    # multi-matching
+    next if $req->{match} && ! $req->{MultiMatch};
+    
+    for my $cmp ( @{$req->{id}} )
+    {
+      # is this a subroutine to call?
+      if ( 'CODE' eq ref $cmp->{match} )
+      {
+	next unless $cmp->{match}->($id, $oids );
+      }
+      
+      # regular expression
+      elsif( 'Regexp' eq ref $cmp->{match} )
+      {
+	next unless $id =~ /$cmp->{match}/;
+      }
+      
+      # a direct match?
+      else
+      {
+	next unless $id eq $cmp->{match};
+      }
+      
+      # we get here only if there was a match.
+      
+      # move on to next request if this was an explicit exclude
+      # request.
+      if ( $cmp->{exclude} )
+      {
+	$excluded->{$req}++;
+	next;
+      }
+      
+      # return match, plus whether this is a global skip request
+      return ( $cmp->{skip}, $req );
+    }
+  }
+  
+  ( 0, undef );
+}
+
+# determine if a request matches a column.  requests should
+# be real objects, but until then...
+sub req_match_cols
+{
+  my ( $reqs, $cols, $id, $oids ) = @_;
+
+  for my $req ( @$reqs )
+  {
+    # bail if this request has already matched and we're not
+    # multi-matching
+    next if $req->{match} && ! $req->{MultiMatch};
+    
+    my @fix_cols = @$cols;
+    fix_texts($req, \@fix_cols);
+
+    for my $cmp ( @{$req->{cols}} )
+    {
+      # is this a subroutine to call?
+      if ( 'CODE' eq ref $cmp->{match} )
+      {
+	next unless $cmp->{match}->( $id, $oids, \@fix_cols );
+      }
+      
+      # regular expression
+      elsif( 'Regexp' eq ref $cmp->{match} )
+      {
+	next unless grep { /$cmp->{match}/ } @fix_cols;
+      }
+      
+      # a direct match?
+      else
+      {
+	next unless grep { $_ eq $cmp->{match} } @fix_cols;
+      }
+      
+      # we get here only if there was a match
+      
+      # move on to next request if this was an explicit exclude
+      # request.
+      next if $cmp->{exclude};
+      
+      # return match, plus whether this is a global skip request
+      return ( $cmp->{skip}, $req );
+    }
+
+  }
+
+  (0, undef);
 }
 
 # we've pulled in a header; does it match against one of the requests?
@@ -156,50 +262,27 @@ sub match_hdr
   # 2. if no header matches, use DEFAULT id
   # 3. if no DEFAULT, no match
 
-
   # 1. check header matches
-  for my $req ( @{$self->{reqs}} )
+  my ( $skip, $req ) = req_match_cols( $self->{reqs}, \@cols, $self->{id},
+				       $self->{oids} );
+  # did we match a skip table request?
+  return 0 if $skip;
+
+  if ( $req )
   {
-    # only interested in cols_hash and colre here
-    next unless exists $req->{cols_hash} || exists $req->{colre};
-
-    # can't use use-once request if it's used.
-    next if $req->{match} && ! $req->{MultiMatch};
-
-    # need to do this so fix_texts picks up the request's data edit
-    # attributes
-    $self->{req} = $req;
-
-    my @fix_cols = @cols;
-    $self->fix_texts(\@fix_cols);
-
-    $self->{req} = undef;
-
-    foreach  (@fix_cols )
-    {
-      if ( exists $req->{cols_hash}{$_} )
-      {
-	$self->match_req( $req );
-	return 1;
-      }
-
-      foreach my $re ( @{$req->{colre}} )
-      {
-	if ( /$re/ )
-	{
-	  $self->match_req( $req );
-	  return 1;
-	}
-      }
-    }
+    $self->match_req( $req );
+    return 1;
   }
 
+
   # 2. DEFAULT match
-  if ( my ( $req ) = 
-       grep { defined $_->{id} && 
-	      $_->{id} eq 'DEFAULT' &&
-              ! ( $_->{match} && ! $_->{MultiMatch} ) }
-       @{$self->{reqs}} )
+  ( $skip, $req ) = 
+    req_match_id( $self->{reqs}, 'DEFAULT', $self->{oids}, $self->{exclreqs} );
+
+  # did we match a skip table request? Does this make sense for DEFAULT?
+  return 0 if $skip;
+
+  if ( $req )
   {
     $self->match_req( $req );
     return 1;
@@ -250,7 +333,11 @@ sub callback
   }
   else
   {
-    $self->{obj}->$call( $self->{id}, @_, $req->{udata} );
+    # if the object was destroyed before we get here (if it
+    # was created by us and thus was destroyed before us if
+    # there was an error), we can't call a method
+    $self->{obj}->$call( $self->{id}, @_, $req->{udata} )
+      if defined $self->{obj};
   }
 }
 
@@ -288,7 +375,8 @@ sub start_column
   # we really shouldn't be here if a row hasn't been started
   unless ( defined $self->{row} )
   {
-    $self->callback( 'warn', "<td> or <th> without <tr> at line $line\n" );
+    $self->callback( 'warn', $self->{id}, $line, 
+		     "<td> or <th> without <tr> at line $line\n" );
     $self->start_row( {}, $line );
   }
 
@@ -405,7 +493,7 @@ sub end_row
 
   # output the data if we're not in a header
   $self->callback( 'row', $self->{line}, 
-		   $self->fix_texts( shift @{$self->{data}} ) )
+		   fix_texts( $self->{req}, shift @{$self->{data}} ) )
       unless $self->{in_hdr};
 
   $self->{in_hdr} = 0;
@@ -426,7 +514,7 @@ sub finish_header
   # if we're trying to match header columns, check that here.
   if ( defined $self->{req} )
   {
-    fix_texts( \@header );
+    fix_texts( $self->{req}, \@header );
     $self->callback( 'hdr',  $self->{hdr_line}, \@header );
   }
 
@@ -437,7 +525,7 @@ sub finish_header
       # haven't done this callback yet...
       $self->callback( 'start', $self->{start_line} );
 
-      fix_texts( \@header );
+      fix_texts( $self->{req}, \@header );
       $self->callback( 'hdr',  $self->{hdr_line}, \@header );
     }
 
@@ -474,21 +562,25 @@ DESTROY
 
 sub fix_texts
 {
-  my ( $self, $texts  ) = @_;
+  my ( $req, $texts  ) = @_;
 
   for ( @$texts )
   {
-    chomp $_ 
-      if $self->{req}{Chomp};
+    local $HTML::Entities::entity2char{nbsp} = ' '
+      if $req->{DecodeNBSP};
 
-    if ( $self->{req}{Trim} )
+    chomp $_ 
+      if $req->{Chomp};
+
+    decode_entities( $_ )
+      if $req->{Decode};
+
+
+    if ( $req->{Trim} )
     {
       s/^\s+//;
       s/\s+$//;
     }
-
-    decode_entities( $_ )
-      if $self->{req}{Decode};
   }
 
   $texts;
@@ -516,7 +608,7 @@ use HTML::Parser;
 
 our @ISA = qw(HTML::Parser);
 
-our $VERSION = '0.2';
+our $VERSION = '0.3';
 
 # Preloaded methods go here.
 
@@ -524,6 +616,7 @@ our %Attr =  ( Trim => 0,
 	       Decode => 1,
 	       Chomp => 0,
 	       MultiMatch => 0,
+	       DecodeNBSP => 0,
 	     );
 our @Attr = keys %Attr;
 
@@ -563,10 +656,13 @@ sub new
 }
 
 
-our @ReqAttr = ( qw( cols colre id class obj start end hdr row warn udata ),
+our @ReqAttr = ( qw( cols colre id idre class obj start end 
+		     hdr row warn udata ),
 		 keys %Attr );
 our %ReqAttr = map { $_ => 1 } @ReqAttr;
 
+# convert table requests into something that HTML::TableParser::Table can
+# handle
 sub tidy_reqs
 {
   my ( $reqs, $attr ) = @_;
@@ -585,64 +681,104 @@ sub tidy_reqs
 	   join(" ,'", @notvalid ), "'\n" )
       if @notvalid;
 
-    my $id = 0;
+    my $req_id = 0;
 
-    if ( defined $req->{cols} )
+
+    # parse cols and id the same way
+    for my $what ( qw( cols id ) )
     {
-      my $cols;
+      $req{$what} = [];
 
-      if ( 'ARRAY' eq ref $req->{cols} )
+      if ( exists $req->{$what} && defined $req->{$what} )
       {
-	$cols = $req->{cols};
-      }
-      elsif ( ! ref $req->{cols} )
-      {
-	$cols = [ $req->{cols} ];
-      }
-      else
-      {
-	croak( "table request $nreq: cols must be a scalar or arrayref\n" );
-      }
+	my @reqs;
 
-      $req{cols_hash} = { map { $_ => 1 } @{$cols} };
-      $id++ if @{$cols};
-    }
-    else
-    {
-      $req{cols_hash} = {};
+	my $ref = ref $req->{$what};
+	
+	if ( 'ARRAY' eq $ref )
+	{
+	  @reqs = @{$req->{$what}};
+	}
+	elsif ( 'Regexp' eq $ref  || 
+		'CODE' eq $ref ||
+		! $ref )
+	{
+	  @reqs = ( $req->{$what} );
+	}
+	else
+	{
+	  croak( "table request $nreq: $what must be a scalar, arrayref, or coderef\n" );
+	}
+	
+	# now, check that we have legal things in there
+	my %attr = ();
+
+	for my $match ( @reqs )
+	{
+	  my $ref = ref $match;
+	  croak( "table request $nreq: illegal $what `$match': must be a scalar, regexp, or coderef\n" )
+	    unless defined $match && ! $ref || 'Regexp' eq $ref 
+	      || 'CODE' eq $ref ;
+
+	  if ( ! $ref && $match eq '-' )
+	  {
+	    %attr = ( exclude => 1 );
+  	    next;
+	  }
+
+	  if ( ! $ref && $match eq '--' )
+	  {
+	    %attr = ( skip => 1 );
+	    next;
+	  }
+
+	  if ( ! $ref && $match eq '+' )
+	  {
+	    %attr = ();
+	    next;
+	  }
+
+	  push @{$req{$what}}, { %attr, match => $match };
+	  %attr = ();
+	  $req_id++;
+	}
+      }
     }
 
-    unless ( defined $req->{colre} )
+    # colre is now obsolete, but keep backwards compatibility
+    # column regular expression match?
+    if ( defined $req->{colre} )
     {
-      $req{colre} = [];
-    }
-    else
-    {
+      my $colre;
 
       if ( 'ARRAY' eq ref $req->{colre} )
       {
-	$req{colre} = $req->{colre};
+	$colre = $req->{colre};
       }
       elsif ( ! ref $req->{colre} )
       {
-	$req{colre} = [ $req->{colre} ];
+	$colre = [ $req->{colre} ];
       }
       else
       {
 	croak( "table request $nreq: colre must be a scalar or arrayref\n" );
       }
-
-      $id++ if @{$req{colre}};
+      
+      for my $re ( @$colre )
+      {
+	my $ref = ref $re;
+	
+	croak( "table request $nreq: colre must be a scalar\n" )
+	  unless ! $ref or  'Regexp' eq $ref;
+	push @{$req{cols}}, { include => 1, 
+			      match => 'Regexp' eq $ref ? $re : qr/$re/ };
+	$req_id++;
+      }
     }
 
-    if ( exists $req->{id} )
-    {
-      $id++;
-      $req{id} = $req->{id};
-    }
 
     croak( "table request $nreq: must specify at least one id method" )
-      unless $id;
+      unless $req_id;
 
     $req{obj} = $req->{obj}
       if exists $req->{obj};
@@ -663,14 +799,20 @@ sub tidy_reqs
 
 	if ( exists $req->{$method} )
 	{
-	  croak( "table request $nreq: can't have object & non-scalar $method" )
-	    if ref $req->{$method};
-
-	  my $call = $req->{$method};
-
-	  croak( "table request $nreq: class doesn't have method $call" )
-	    if ( exists $req->{obj} && ! $req->{obj}->can( $call ) )
-	      || !UNIVERSAL::can( $thing, $call );
+	  if ( defined $req->{$method} )
+	  {
+	    croak( "table request $nreq: can't have object & non-scalar $method" )
+	      if ref $req->{$method};
+	    
+	    my $call = $req->{$method};
+	    
+	    croak( "table request $nreq: class doesn't have method $call" )
+	      if ( exists $req->{obj} && ! $req->{obj}->can( $call ) )
+		|| !UNIVERSAL::can( $thing, $call );
+	  }
+	  
+	  # if $req->{$method} is undef, user must have explicitly
+	  # set it so, which is a signal to NOT call that method.
 	}
 	else
 	{
@@ -824,16 +966,8 @@ HTML::TableParser - Extract data from an HTML table
 =head1 SYNOPSIS
 
   use HTML::TableParser;
-  $p = HTML::TableParser->new( \@reqs, \%attr );
-  $p->parse_file( 'foo.html' );
 
   @reqs = (
-	   {
-	    id => 1,                      # table id
-	    cols => [ 'Object Type' ],  # column name exact match
-	    colre => [ qr/object/ ],      # column name RE match
-	    obj => $obj,                  # method callbacks
-	   },
 	   {
 	    id => 1.1,                    # id for embedded table
 	    hdr => \&header,              # function callback
@@ -841,8 +975,13 @@ HTML::TableParser - Extract data from an HTML table
 	    start => \&start,             # function callback
 	    end => \&end,                 # function callback
 	    udata => { Snack => 'Food' }, # arbitrary user data
-	   }
-
+	   },
+	   {
+	    id => 1,                      # table id
+	    cols => [ 'Object Type',
+		      qr/object/ ],       # column name matches
+	    obj => $obj,                  # method callbacks
+	   },
 	  );
 
   # create parser object
@@ -874,44 +1013,29 @@ HTML::TableParser - Extract data from an HTML table
 
 =head1 DESCRIPTION
 
-B<HTML::TableParser> uses B<HTML::Parser> to extract
-data from an HTML table.  The data is returned via a series of user
-defined callback functions or methods.  Specific tables may be
-selected either by a unique table id or by matching against the column
-names.  Multiple tables may be parsed simultaneously in the document.
+B<HTML::TableParser> uses B<HTML::Parser> to extract data from an HTML
+table.  The data is returned via a series of user defined callback
+functions or methods.  Specific tables may be selected either by a
+matching a unique table id or by matching against the column names.
+Multiple (even nested) tables may be parsed in a document in one pass.
 
-=head2 Table Selection
+=head2 Table Identification
 
-There are several ways to indicate which tables in the HTML document
-you want to extract data from:
-
-=over 8
-
-=item id
-
-Each table is given a unique id relative to its parent based upon its
+Each table is given a unique id, relative to its parent, based upon its
 order and nesting. The first top level table has id C<1>, the second
 C<2>, etc.  The first table nested in table C<1> has id C<1.1>, the
 second C<1.2>, etc.  The first table nested in table C<1.1> has id
-C<1.1.1>, etc.
-
-=item column name exact match
-
-exact matches against one or more column names
-
-=item column name RE match
-
-matches column names against one or more regular expressions.
-
-=back
+C<1.1.1>, etc.  These, as well as the tables' column names, may
+be used to identify which tables to parse.
 
 =head2 Data Extraction
 
-As the parser traverses the table, it will pass data to user provided
-callback functions or methods after it has digested particular
-structures in the table.  All functions are passed the table id (as
-described above), the line number in the HTML source where the table
-was found, and a reference to any table specific user provided data.
+As the parser traverses a selected table, it will pass data to user
+provided callback functions or methods after it has digested
+particular structures in the table.  All functions are passed the
+table id (as described above), the line number in the HTML source
+where the table was found, and a reference to any table specific user
+provided data.
 
 =over 8
 
@@ -947,10 +1071,11 @@ start.
 
 =back
 
+=head2 Callback API
+
 Callbacks may be functions or methods or a mixture of both.
 In the latter case, an object must be passed to the constructor.
-
-=head2 Callback API
+(More on that later.)
 
 The callbacks are invoked as follows:
 
@@ -962,13 +1087,13 @@ The callbacks are invoked as follows:
 
   row( $tbl_id, $line_no, \@data, $udata );
 
-  warn( $tbl_id, $message, $udata );
+  warn( $tbl_id, $line_no, $message, $udata );
 
   new( $tbl_id, $udata );
 
 =head2 Data Cleanup
 
-There are several cleanup operations that may be performed:
+There are several cleanup operations that may be performed automatically:
 
 =over 8
 
@@ -979,6 +1104,13 @@ B<chomp()> the data
 =item Decode
 
 Run the data through B<HTML::Entities::decode>.
+
+=item DecodeNBSP
+
+Normally B<HTML::Entitites::decode> changes a non-breaking space into
+a character which doesn't seem to be matched by Perl's whitespace
+regexp.  Setting this attribute changes the HTML C<nbsp> character to
+a plain 'ol blank.
 
 =item Trim
 
@@ -1028,35 +1160,188 @@ places.
 
 This is the class constructor.  It is passed a list of table requests
 as well as attributes which specify defaults for common operations.
+Table requests are documented in L</Table Requests>.
 
-B<Table Requests>
+The C<%attr> hash provides default values for some of the table
+request attributes, namely the data cleanup operations ( C<Chomp>,
+C<Decode>, C<Trim> ), and the multi match attribute C<MultiMatch>,
+i.e.,
 
-A table request is a hash whose elements select the
-identification method, the callbacks, and any table-specific data
-cleanup.
+  $p = HTML::TableParser->new( \@reqs, { Chomp => 1 } );
 
-Elements used to identify the table are
+will set B<Chomp> on for all of the table requests, unless overriden
+by them.  The data cleanup operations are documented above; C<MultiMatch>
+is documented in L</Table Requests>.
+
+B<Decode> defaults to on; all of the others default to off.
+
+=item parse_file
+
+This is the same function as in B<HTML::Parser>.
+
+=item parse
+
+This is the same function as in B<HTML::Parser>.
+
+=back
+
+
+=head1 Table Requests
+
+A table request is a hash used by B<HTML::TableParser> to determine
+which tables are to be parsed, the callbacks to be invoked, and any
+data cleanup.  There may be multiple requests processed by one call to
+the parser; each table is associated with a single request (even if
+several requests match the table).
+
+A single request may match several tables, however unless the
+B<MultiMatch> attribute is specified for that request, it will be used
+for the first matching table only.
+
+A table request which matches a table id of C<DEFAULT> will be used as
+a catch-all request, and will match all tables not matched by other
+requests.  Please note that tables are compared to the requests in the
+order that the latter are passed to the B<new()> method; place the
+B<DEFAULT> method last for proper behavior.
+
+
+=head2 Identifying tables to parse
+
+B<HTML::TableParser> needs to be told which tables to parse.  This can
+be done by matching table ids or column names, or a combination of
+both.  The table request hash elements dedicated to this are:
 
 =over 8
 
 =item id
 
-a scalar containing the table id to match.  If it is the string
-'DEFAULT' it will match for every table.
+This indicates a match on table id.  It can take one of these forms:
+
+=over 8
+
+=item exact match
+
+  id => $match
+  id => '1.2'
+
+Here C<$match> is a scalar which is compared directly to the table id.
+
+=item regular expression
+
+  id => $re
+  id => qr/1\.\d+\.2/
+
+C<$re> is a regular expression, which must be constructed with the
+C<qr//> operator.
+
+=item subroutine
+
+  id => \&my_match_subroutine
+  id => sub { my ( $id, $oids ) = @_ ; 
+           $oids[0] > 3 && $oids[1] < 2 }
+
+Here C<id> is assigned a coderef to a subroutine which returns
+true if the table matches, false if not.  The subroutine is passed
+two arguments: the table id as a scalar string ( e.g. C<1.2.3>) and the
+table id as an arrayref (e.g. C<$oids = [ 1, 2, 3]>).
+
+=back
+
+C<id> may be passed an array containing any combination of the
+above:
+
+  id => [ '1.2', qr/1\.\d+\.2/, sub { ... } ]
+
+Elements in the array may be preceded by a modifier indicating
+the action to be taken if the table matches on that element.
+The modifiers and their meanings are:
+
+=over 8
+
+=item C<->
+
+If the id matches, it is explicitly excluded from being processed
+by this request.
+
+=item C<-->
+
+If the id matches, it is skipped by B<all> requests.
+
+=item C<+>
+
+If the id matches, it will be processed by this request.  This
+is the default action.
+
+=back
+
+An example:
+
+  id => [ '-', '1.2', 'DEFAULT' ]
+
+indicates that this request should be used for all tables,
+except for table 1.2.
+
+  id => [ '--', '1.2' ]
+
+Table 2 is just plain skipped altogether.
 
 =item cols
 
-an arrayref containing the column names to match, or a scalar
-containing a single column name
+This indicates a match on column names.  It can take one of these forms:
+
+=over 8
+
+=item exact match
+
+  cols => $match
+  cols => 'Snacks01'
+
+Here C<$match> is a scalar which is compared directly to the column names.
+If any column matches, the table is processed.
+
+=item regular expression
+
+  cols => $re
+  cols => qr/Snacks\d+/
+
+C<$re> is a regular expression, which must be constructed with the
+C<qr//> operator.  Again, a successful match against any column name
+causes the table to be processed.
+
+=item subroutine
+
+  cols => \&my_match_subroutine
+  cols => sub { my ( $id, $oids, $cols ) = @_ ;
+                ... }
+
+Here C<cols> is assigned a coderef to a subroutine which returns
+true if the table matches, false if not.  The subroutine is passed
+three arguments: the table id as a scalar string ( e.g. C<1.2.3>), the
+table id as an arrayref (e.g. C<$oids = [ 1, 2, 3]>), and the column
+names, as an arrayref (e.g. C<$cols = [ 'col1', 'col2' ]>).  This
+option gives the calling routine the ability to make arbitrary
+selections based upon table id and columns.
+
+=back
+
+C<cols> may be passed an arrayref containing any combination of the
+above:
+
+  cols => [ 'Snacks01', qr/Snacks\d+/, sub { ... } ]
+
+Elements in the array may be preceded by a modifier indicating
+the action to be taken if the table matches on that element.
+They are the same as the table id modifiers mentioned above.
 
 =item colre
 
-an arrayref containing the regular expressions to match, or a scalar
+B<This is deprecated, and is present for backwards compatibility only.>
+An arrayref containing the regular expressions to match, or a scalar
 containing a single reqular expression
 
 =back
 
-More than one of these may be used for a single table request. A a
+More than one of these may be used for a single table request. A
 request may match more than one table.  By default a request is used
 only once (even the C<DEFAULT> id match!). Set the C<MultiMatch>
 attribute to enable multiple matches per request.
@@ -1067,9 +1352,8 @@ When attempting to match a table, the following steps are taken:
 
 =item 1
 
-The table id is compared to the requests which contain an explicit id
-match.  The first such match is used (in the order given in the passed
-array).
+The table id is compared to the requests which contain an id match.
+The first such match is used (in the order given in the passed array).
 
 =item 2
 
@@ -1079,11 +1363,11 @@ The first such match is used (in the order given in the passed array)
 =item 3
 
 If no column name match is found (or there were none requested),
-the request with an B<id> match of C<DEFAULT> is used.
+the first request which matches an B<id> of C<DEFAULT> is used.
 
 =back
 
-B<Callbacks>
+=head2 Specifying the data callbacks
 
 Callback functions are specified with the callback attributes
 C<start>, C<end>, C<hdr>, C<row>, and C<warn>.  They should be set to
@@ -1118,39 +1402,41 @@ set the callback attribute to a code reference:
 You don't have to provide all the callbacks.  You should not use both
 C<obj> and C<class> in the same table request.
 
+B<HTML::TableParser> automatically determines if your object
+or class has one of the required methods.  If you wish it I<not>
+to use a particular method, set it equal to C<undef>.  For example
+
+  %table_req = ( ..., obj => $obj, end => undef )
+
+indicates the object's B<end> method should not be called, even
+if it exists.
+
 You can specify arbitrary data to be passed to the callback functions
 via the C<udata> attribute:
 
   %table_req = ( ..., udata => \%hash_of_my_special_stuff )
 
+=head2 Specifying Data cleanup operations
+
 Data cleanup operations may be specified uniquely for each table. The
-available keys are C<Chomp>, C<Decode>, C<Trim>.
+available keys are C<Chomp>, C<Decode>, C<Trim>.  They should be
+set to a non-zero value if the operation is to be performed.
 
-B<Attributes>
+=head2 Other Attributes
 
-The C<%attr> hash provides default values for some of the table
-request attributes, namely the data cleanup operations ( C<Chomp>,
-C<Decode>, C<Trim> ), and the multi match attribute C<MultiMatch>,
-i.e.,
-
-  $p = HTML::TableParser->new( \@reqs, { Chomp => 1 } );
-
-will set B<Chomp> on for all of the table requests, unless overriden
-by them.
-
-B<Decode> defaults to on; all of the others default to off.
+The C<MultiMatch> key is used when a request is capable of handling
+multiple tables in the document.  Ordinarily, a request will process
+a single table only (even C<DEFAULT> requests).
+Set it to a non-zero value to allow the request to handle more than
+one table.
 
 
-=item parse_file
+=head1 LICENSE
 
-This is the same function as in B<HTML::Parser>.
+This software is released under the GNU General Public License.  You
+may find a copy at 
 
-=item parse
-
-This is the same function as in B<HTML::Parser>.
-
-=back
-
+   http://www.fsf.org/copyleft/gpl.html
 
 =head1 AUTHOR
 

@@ -1,7 +1,8 @@
 use strict;
 use warnings;
 
-use Test::More tests => 121;
+use Test::More;
+plan( tests => 130 );
 
 use IO::File;
 use File::Basename;
@@ -11,7 +12,7 @@ BEGIN { use_ok( 'HTML::TableParser' ); }
 require 't/common.pl';
 
 our $verbose = 0;
-our $create = 0;
+our $create = 1;
 
 our $header;
 our $columns;
@@ -88,7 +89,11 @@ sub header
 
 our @data_t = qw( Default Chomp Trim Decode );
 
-for my $html ( <data/*.html> )
+opendir( DDIR, 'data' ) or die( "error reading dir data\n" );
+my @html = map { "data/$_" } grep { /.html$/ } readdir( DDIR );
+closedir DDIR;
+
+for my $html ( @html )
 {
   ( my $hdrfile = $html ) =~ s/.html/.hdr/;
 
@@ -121,6 +126,7 @@ for my $html ( <data/*.html> )
       local $req{id} = 1;
       my $p = HTML::TableParser->new( [ \%req ], \%attr );
       undef @parse_data;
+      $header = undef;
       $p->parse_file( $html ) || die;
       ok( eq_array( $header, $columns ), "$html id" );
       $data->{$type} = [@parse_data] if $create;
@@ -131,6 +137,7 @@ for my $html ( <data/*.html> )
       local $req{cols} = [ $columns->[0] ];
       my $p = HTML::TableParser->new( [ \%req ], \%attr );
       undef @parse_data;
+      $header = undef;
       $p->parse_file( $html ) || die;
       ok( eq_array( $header, $columns ), "$html cols" );
       ok( eq_array( $data->{$type}, \@parse_data ), "$html($type) cols data" );
@@ -141,6 +148,7 @@ for my $html ( <data/*.html> )
       substr($re, -1, 1, '');
       local $req{colre} = [ $re ];
       undef @parse_data;
+      $header = undef;
       my $p = HTML::TableParser->new( [ \%req ], \%attr );
       $p->parse_file( $html ) || die;
       ok( eq_array( $header, $columns ), "$html colre" );
@@ -151,6 +159,7 @@ for my $html ( <data/*.html> )
       $header = undef;
       local $req{cols} = [ "this column doesn't exist" ];
       undef @parse_data;
+      $header = undef;
       my $p = HTML::TableParser->new( [ \%req ], \%attr );
       $p->parse_file( $html ) || die;
       ok( !defined $header, "$html($type) cols: no match" );
@@ -191,7 +200,7 @@ for my $html ( <data/*.html> )
     ( my $datafile = $fakehtml ) =~ s/.html/.$type.data/;
 
     $req{udata}{data} = $datafile;
-    
+    $header = undef;
     {
       local $req{id} = 1.1;
       my $p = HTML::TableParser->new( [ \%req ], \%attr );
@@ -203,3 +212,167 @@ for my $html ( <data/*.html> )
     }
   }
 }
+
+# check id coderef mode. no need to do the create bit,
+# as we're reusing stuff from just above here
+{
+  local $create = 0;
+
+  my $html = 'data/table2.html';
+  my $fakehtml = 'data/table2-1.html';
+  my $hdrfile = 'data/table2-1.hdr';
+
+  my %req = ( hdr => \&header, row => \&row, start => \&start,
+	      id => sub { $_[0] eq '1.1' },
+	      udata => { hdr => $hdrfile, 
+			 data => 'data/table2-1.Default.data' }
+	    );
+
+
+  my ( $data, $datafile );
+  ($columns, $data, $datafile ) = read_table_data( $fakehtml, [ 'Default' ] );
+
+  $header = undef;
+
+  my $p = HTML::TableParser->new( [ \%req ] );
+  undef @parse_data;
+  $p->parse_file( $html ) || die;
+  ok( eq_array( $header, $columns ), "$fakehtml id = coderef" );
+
+  ok( eq_array( $data->{Default}, \@parse_data ), 
+      "$fakehtml(Default) id = coderef data" );
+
+}
+
+# check id exclude mode. no need to do the create bit,
+# as we're reusing stuff from just above here
+{
+  local $create = 0;
+
+  my $html = 'data/table2.html';
+  my $fakehtml = 'data/table2-1.html';
+  my $hdrfile = 'data/table2-1.hdr';
+
+  my %req = ( hdr => \&header, row => \&row, start => \&start,
+	      id => [ '-', sub { $_[0] eq '1' }, 'DEFAULT' ],
+	      udata => { hdr => $hdrfile, 
+			 data => 'data/table2-1.Default.data' }
+	    );
+
+
+  my ( $data, $datafile );
+  ($columns, $data, $datafile ) = read_table_data( $fakehtml, [ 'Default' ] );
+
+  $header = undef;
+
+  my $p = HTML::TableParser->new( [ \%req ] );
+  undef @parse_data;
+  $p->parse_file( $html ) || die;
+  ok( eq_array( $header, $columns ), "$fakehtml id exclude" );
+
+  ok( eq_array( $data->{Default}, \@parse_data ), 
+      "$fakehtml(Default) id exclude data" );
+
+}
+
+
+# check id skip mode.
+# no need to do the create bit,
+# as we're reusing stuff from just above here
+{
+  local $create = 0;
+
+  my $html = 'data/table2.html';
+  my $fakehtml = 'data/table2-1.html';
+  my $hdrfile = 'data/table2-1.hdr';
+
+  my @reqs = 
+    ( 
+      { id => [ '--', '1' ] },
+      {
+       hdr => \&header, row => \&row, start => \&start,
+       id => 'DEFAULT',
+       udata => { hdr => $hdrfile, 
+		  data => 'data/table2-1.Default.data' }
+      }
+    );
+
+
+  my ( $data, $datafile );
+  ($columns, $data, $datafile ) = read_table_data( $fakehtml, [ 'Default' ] );
+
+  $header = undef;
+
+  my $p = HTML::TableParser->new( \@reqs );
+  undef @parse_data;
+  $p->parse_file( $html ) || die;
+  ok( eq_array( $header, $columns ), "$fakehtml id skip" );
+
+  ok( eq_array( $data->{Default}, \@parse_data ), 
+      "$fakehtml(Default) id skip data" );
+
+}
+
+
+# check id re mode. no need to do the create bit,
+# as we're reusing stuff from just above here
+{
+  local $create = 0;
+
+  my $html = 'data/table2.html';
+  my $fakehtml = 'data/table2-1.html';
+  my $hdrfile = 'data/table2-1.hdr';
+
+  my %req = ( hdr => \&header, row => \&row, start => \&start,
+	      id => qr/\.1$/,
+	      udata => { hdr => $hdrfile, 
+			 data => 'data/table2-1.Default.data' }
+	    );
+
+
+  my ( $data, $datafile );
+  ($columns, $data, $datafile ) = read_table_data( $fakehtml, [ 'Default' ] );
+
+  $header = undef;
+  my $p = HTML::TableParser->new( [ \%req ] );
+  undef @parse_data;
+  $p->parse_file( $html ) || die;
+  ok( eq_array( $header, $columns ), "$fakehtml idre" );
+
+  ok( eq_array( $data->{Default}, \@parse_data ), 
+      "$fakehtml(Default) idre data" );
+}
+
+
+# check cols coderef mode. no need to do the create bit,
+# as we're reusing stuff from just above here
+{
+  use Data::Dumper;
+  local $create = 0;
+
+  my $html     = 'data/screwy.html';
+  my $datafile = 'data/screwy.Default.data';
+  my $hdrfile  = 'data/screwy.hdr';
+
+  my %req = ( hdr => \&header, row => \&row, start => \&start,
+	      cols => sub { grep { /Widget A/ } @{$_[2]}  },
+	      udata => { hdr => $hdrfile, 
+			 data => $datafile }
+	    );
+
+
+  my $data;
+  ($columns, $data, $datafile ) = read_table_data( $html, [ 'Default' ] );
+
+  $header = undef;
+
+  my $p = HTML::TableParser->new( [ \%req ] );
+  undef @parse_data;
+  $p->parse_file( $html ) || die;
+  ok( eq_array( $header, $columns ), "$html cols = coderef" );
+
+  ok( eq_array( $data->{Default}, \@parse_data ), 
+      "$html(Default) cols = coderef data" );
+
+}
+
