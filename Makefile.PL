@@ -6,7 +6,7 @@ WriteMakefile(
     'VERSION_FROM'	=> 'TableParser.pm', # finds $VERSION
     'PREREQ_PM'		=> {
 			    HTML::Entities => 0,
-			    HTML::Parser => 3.25,
+			    HTML::Parser => 3.26,
 			    Test::More => 0.32,
 			   }, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?    ## Add these new keywords supported since 5.005

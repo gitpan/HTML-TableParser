@@ -1,5 +1,9 @@
 Revision history for Perl extension HTML::TableParser.
 
+0.34  Sat Sep  7 01:25:01 EDT 2002
+        - HTML::Parser v. 3.25 didn't handle croaks in callbacks
+	  correctly. 3.26 does; Makefile.PL was updated to require it.
+
 0.33  Tue Sep  3 14:15:13 EDT 2002
         - MANIFEST was out of date.  oops.
 
