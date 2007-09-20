@@ -17,4 +17,4 @@ no_index:
 requires:
   HTML::Entities: 0
   HTML::Parser: 3.26
-version: 0.35
+version: 0.36

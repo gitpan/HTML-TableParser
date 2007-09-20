@@ -1,5 +1,8 @@
 Revision history for Perl extension HTML::TableParser.
 
+0.36  Thu Sep 20 09:30:35 EDT 2007
+        - add version to Table.pm to fix PAUSE indexer error
+
 0.35  Wed Sep 19 21:22:22 EDT 2007
         - fix test to work with Test::More 0.71
 	- reorganize to a more modern layout

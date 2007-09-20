@@ -1,8 +1,23 @@
-2007-09-19  Diab Jerius  <djerius@cfa.harvard.edu>
+2007-09-20  Diab Jerius  <djerius@cfa.harvard.edu>
 
-	Tag: 0.35
+	Tag: 0.36 
 
-2007-09-19 21:21 -0400  djerius  <djerius@cfa.harvard.edu>  (2856b191708a [tip])
+2007-09-20 09:30 -0400  djerius  <djerius@cfa.harvard.edu>  (192398e71e2e [tip])
+
+	* lib/HTML/TableParser.pm, lib/HTML/TableParser/Table.pm:
+	add version to Table.pm to fix PAUSE indexer error
+
+2007-09-19 21:26 -0400  djerius  <djerius@cfa.harvard.edu>  (91a53eaf66e1)
+
+	* .hgtags:
+	Added tag 0.35 for changeset 2bdac628534b
+
+2007-09-19 21:26 -0400  djerius  <djerius@cfa.harvard.edu>  (2bdac628534b [0.35])
+
+	* ChangeLog, Changes, lib/HTML/TableParser.pm:
+	update for release
+
+2007-09-19 21:21 -0400  djerius  <djerius@cfa.harvard.edu>  (2856b191708a)
 
 	* Makefile.PL:
 	switch to Module::Install
@@ -49,195 +64,243 @@
 	* ChangeLog:
 	2007-09-19 21:46:25 by dj added ChangeLog
 
-2002-09-07 01:32  tag V0_34
+2007-09-19 17:47 -0400  djerius  <djerius@cfa.harvard.edu>  (8a0299e24612)
 
-2002-09-07 01:32  dj
+	* .hgtags:
+	Added tag V0_34 for changeset 453b953f2d9f
 
-	* Changes, Makefile.PL, TableParser.pm: requires HTML::Parser 3.26
-	  which fixes callback bug in 3.25
+2002-09-07 05:32 +0000  dj  <dj>  (453b953f2d9f [V0_34])
 
-2002-09-03 14:35  tag V0_33
+	* Changes, Makefile.PL, TableParser.pm:
+	2002-09-07 05:32:07 by dj requires HTML::Parser 3.26 which fixes
+	callback bug in 3.25
 
-2002-09-03 14:35  dj
+2007-09-19 17:47 -0400  djerius  <djerius@cfa.harvard.edu>  (478bb87c1f1d)
 
-	* Changes, TableParser.pm: [no log message]
+	* .hgtags:
+	Added tag V0_33 for changeset c0564fdb1ac8
 
-2002-09-03 14:11  tag V0_32
+2002-09-03 18:35 +0000  dj  <dj>  (c0564fdb1ac8 [V0_33])
 
-2002-09-03 14:11  dj
+	* Changes, TableParser.pm:
+	2002-09-03 18:35:58 by dj
 
-	* MANIFEST, TableParser.pm: [no log message]
+2007-09-19 17:47 -0400  djerius  <djerius@cfa.harvard.edu>  (0f8473cd7ff7)
 
-2002-09-03 11:36  dj
+	* .hgtags:
+	Added tag V0_32 for changeset 4956937bff5b
 
-	* Changes, t/end_table.t, tdata/end_table.html: new tests for extra
-	  </table> tag
+2002-09-03 18:11 +0000  dj  <dj>  (4956937bff5b [V0_32])
 
-2002-09-03 11:36  dj
+	* MANIFEST, TableParser.pm:
+	2002-09-03 18:11:19 by dj
 
-	* TableParser.pm: extra </table> tags were not handled properly. it
-	  now croaks if it hits an extra </table> tag.
+2002-09-03 15:36 +0000  dj  <dj>  (836e5206bc16)
 
-2002-04-20 02:14  tag V0_31
+	* Changes, t/end_table.t, tdata/end_table.html:
+	2002-09-03 15:36:54 by dj new tests for extra </table> tag
 
-2002-04-20 02:14  dj
+2002-09-03 15:36 +0000  dj  <dj>  (2e6fff08352c)
 
-	* Changes, Makefile.PL, README, TableParser.pm: [no log message]
+	* TableParser.pm:
+	2002-09-03 15:36:39 by dj extra </table> tags were not handled
+	properly. it now croaks if it hits an extra </table> tag.
 
-2002-04-18 12:53  tag V0_03
+2007-09-19 17:47 -0400  djerius  <djerius@cfa.harvard.edu>  (e4b2f2607c8d)
 
-2002-04-18 12:53  dj
+	* .hgtags:
+	Added tag V0_31 for changeset cdacedc7dc1a
 
-	* README: [no log message]
+2002-04-20 06:14 +0000  dj  <dj>  (cdacedc7dc1a [V0_31])
 
-2002-04-18 12:50  dj
+	* Changes, Makefile.PL, README, TableParser.pm:
+	2002-04-20 06:14:08 by dj
 
-	* TableParser.pm: - decode_entitites was being called too late in
-	  fix_texts,   so Trim was less than effectual.
+2007-09-19 17:47 -0400  djerius  <djerius@cfa.harvard.edu>  (328df5306ba0)
 
-	  - added DecodeNBSP attribute to fix nbsp decoding issues.
+	* .hgtags:
+	Added tag V0_03 for changeset 1033aedf4281
 
-	  - callbacks for methods and classes can be turned off   by
-	  assigning an undef value to the appropriate key in the   table
-	  request.
+2002-04-18 16:53 +0000  dj  <dj>  (1033aedf4281 [V0_03])
 
-	  - the warn callback is also passed the line number now.    this
-	  is an incompatible change in the API.
+	* README:
+	2002-04-18 16:53:19 by dj
 
-2002-04-18 12:49  dj
+2002-04-18 16:50 +0000  dj  <dj>  (554df778ed90)
 
-	* Changes, MANIFEST: [no log message]
+	* TableParser.pm:
+	2002-04-18 16:50:16 by dj
+	- decode_entitites was being called too late in fix_texts, so Trim
+	was less than effectual.
 
-2002-04-18 09:22  dj
+	- added DecodeNBSP attribute to fix nbsp decoding issues.
 
-	* t/class-01.t: test of method/class undef
+	- callbacks for methods and classes can be turned off by assigning
+	an undef value to the appropriate key in the table request.
 
-2002-04-17 12:01  dj
+	- the warn callback is also passed the line number now. this is an
+	incompatible change in the API.
 
-	* TableParser.pm: - specification of ids and column names in
-	  matches has been   extended and simplified.  id and cols now may
-	  take	 arrayrefs of things to match. colre is deprecated.
+2002-04-18 16:49 +0000  dj  <dj>  (2ba5f22a5de6)
 
-	  - matches can be made using literals, subroutines and qr//
-	  created regexps.  the latter two are automatically recognized.
+	* Changes, MANIFEST:
+	2002-04-18 16:49:42 by dj
 
-	  - explicit exclusions and skipping of tables is now possible
+2002-04-18 13:22 +0000  dj  <dj>  (a7f7a965932d)
 
-	  - improved docs (a bit)
+	* t/class-01.t:
+	2002-04-18 13:22:25 by dj test of method/class undef
 
-2002-04-17 12:01  dj
+2002-04-17 16:01 +0000  dj  <dj>  (0184d19c59c0)
 
-	* t/contents.t: new tests for new features
+	* TableParser.pm:
+	2002-04-17 16:01:26 by dj
+	- specification of ids and column names in matches has been extended
+	and simplified. id and cols now may take arrayrefs of things to
+	match. colre is deprecated.
 
-2002-04-17 12:00  dj
+	- matches can be made using literals, subroutines and qr// created
+	regexps. the latter two are automatically recognized.
 
-	* Changes, README, data/table2.hdr, data/table2.html: [no log
-	  message]
+	- explicit exclusions and skipping of tables is now possible
 
-2002-04-12 16:48  tag V0_02
+	- improved docs (a bit)
 
-2002-04-12 16:48  dj
+2002-04-17 16:01 +0000  dj  <dj>  (e1ce201050aa)
 
-	* TableParser.pm: [no log message]
+	* t/contents.t:
+	2002-04-17 16:01:03 by dj new tests for new features
 
-2002-03-11 09:26  dj
+2002-04-17 16:00 +0000  dj  <dj>  (13b357876758)
 
-	* TableParser.pm: [no log message]
+	* Changes, README, data/table2.hdr, data/table2.html:
+	2002-04-17 16:00:39 by dj
 
-2002-01-30 21:05  dj
+2007-09-19 17:47 -0400  djerius  <djerius@cfa.harvard.edu>  (cb8a13943586)
 
-	* MANIFEST, README, THANKS: [no log message]
+	* .hgtags:
+	Added tag V0_02 for changeset 75960cc6baf1
 
-2002-01-30 20:59  dj
+2002-04-12 20:48 +0000  dj  <dj>  (75960cc6baf1 [V0_02])
 
-	* Changes, TableParser.pm: one could not use id=DEFAULT as a fall
-	  through if a column name match didn't work.  in fact, one
-	  couldn't intersperse id's in a request list; they all had to be
-	  at the beginning.  there's now a well defined order in how
-	  requests are processed.
+	* TableParser.pm:
+	2002-04-12 20:48:08 by dj
 
-	  fixing this uncovered another subtle bug.  a header line was
-	  originally recognized only after finishing the first non-header
-	  line.  this lead to the situation that if an embedded table was
-	  in the first non-header row, it would be matched against column
-	  name match requests before the enclosing table, because it would
-	  be completely parsed before the enclosing table's header was even
-	  recognized.  to fix this, we finish off a header in the first
-	  non-header column if the previous row was a header and the
-	  current row isn't a header.
+2002-03-11 14:26 +0000  dj  <dj>  (a0ef168831d9)
 
-	  added an embedded table test in t/contents.t
+	* TableParser.pm:
+	2002-03-11 14:26:13 by dj
 
-	  format of comparison data was wrong. wanted embedded tab between
-	  columns, got character sequence '\t'
+2002-01-31 02:06 +0000  dj  <dj>  (476ba2ba3831)
 
-	  checking whether a request had been used was 99% foobared.
+	* MANIFEST, README, THANKS:
+	2002-01-31 02:05:05 by dj
 
-2002-01-30 20:58  dj
+2002-01-31 01:59 +0000  dj  <dj>  (9c0598046f62)
 
-	* t/: common.pl, contents.t: consolidated some code.  now tests
-	  embedded table fixed some errors from before.  how'd it work?
+	* Changes, TableParser.pm:
+	2002-01-31 01:59:43 by dj one could not use id=DEFAULT as a fall
+	through if a column name match didn't work. in fact, one couldn't
+	intersperse id's in a request list; they all had to be at the
+	beginning. there's now a well defined order in how requests are
+	processed.
 
-2002-01-30 20:58  dj
+	fixing this uncovered another subtle bug. a header line was
+	originally recognized only after finishing the first non-header
+	line. this lead to the situation that if an embedded table was in
+	the first non-header row, it would be matched against column name
+	match requests before the enclosing table, because it would be
+	completely parsed before the enclosing table's header was even
+	recognized. to fix this, we finish off a header in the first non-
+	header column if the previous row was a header and the current row
+	isn't a header.
 
-	* t/counts.pl: can't reuse parser objects now
+	added an embedded table test in t/contents.t
 
-2002-01-30 20:57  dj
+	format of comparison data was wrong. wanted embedded tab between
+	columns, got character sequence '\t'
 
-	* t/req_order.t: new test
+	checking whether a request had been used was 99% foobared.
 
-2002-01-30 20:57  dj
+2002-01-31 01:58 +0000  dj  <dj>  (595fbdeb6f11)
 
-	* MANIFEST, MANIFEST.SKIP: [no log message]
+	* t/common.pl, t/contents.t:
+	2002-01-31 01:58:38 by dj consolidated some code. now tests embedded
+	table fixed some errors from before. how'd it work?
 
-2002-01-30 20:34  dj
+2002-01-31 01:58 +0000  dj  <dj>  (c4427160d1c8)
 
-	* data/: table2-1.Chomp.data, table2-1.Decode.data,
-	  table2-1.Default.data, table2-1.Trim.data, table2-1.hdr: new data
-	  for embedded table
+	* t/counts.pl:
+	2002-01-31 01:58:13 by dj can't reuse parser objects now
 
-2002-01-30 20:33  dj
+2002-01-31 01:57 +0000  dj  <dj>  (5678b2ab5146)
 
-	* data/: ned.Chomp.data, ned.Decode.data, ned.Default.data,
-	  ned.Trim.data, screwy.Chomp.data, screwy.Decode.data,
-	  screwy.Default.data, screwy.Trim.data, table.Chomp.data,
-	  table.Decode.data, table.Default.data, table.Trim.data,
-	  table2.Chomp.data, table2.Decode.data, table2.Default.data,
-	  table2.Trim.data: really wanted tab, not '\t'.  fixed that
+	* t/req_order.t:
+	2002-01-31 01:57:51 by dj new test
 
-2001-12-12 17:17  tag V0_1
+2002-01-31 01:57 +0000  dj  <dj>  (0f30d6d72875)
 
-2001-12-12 17:17  dj
+	* MANIFEST, MANIFEST.SKIP:
+	2002-01-31 01:57:05 by dj
 
-	* README: [no log message]
+2002-01-31 01:34 +0000  dj  <dj>  (aa7ebe60ba56)
 
-2001-12-12 17:16  dj
+	* data/table2-1.Chomp.data, data/table2-1.Decode.data,
+	data/table2-1.Default.data, data/table2-1.Trim.data,
+	data/table2-1.hdr:
+	2002-01-31 01:34:06 by dj new data for embedded table
+
+2002-01-31 01:33 +0000  dj  <dj>  (31cffe3cd722)
+
+	* data/ned.Chomp.data, data/ned.Decode.data, data/ned.Default.data,
+	data/ned.Trim.data, data/screwy.Chomp.data, data/screwy.Decode.data,
+	data/screwy.Default.data, data/screwy.Trim.data,
+	data/table.Chomp.data, data/table.Decode.data,
+	data/table.Default.data, data/table.Trim.data,
+	data/table2.Chomp.data, data/table2.Decode.data,
+	data/table2.Default.data, data/table2.Trim.data:
+	2002-01-31 01:33:50 by dj really wanted tab, not '\t'. fixed that
+
+2007-09-19 17:47 -0400  djerius  <djerius@cfa.harvard.edu>  (20af52277ea9)
+
+	* .hgtags:
+	Added tag V0_1 for changeset 0849908f7a2d
+
+2001-12-12 22:17 +0000  dj  <dj>  (0849908f7a2d [V0_1])
+
+	* README:
+	2001-12-12 22:17:56 by dj
+
+2001-12-12 22:17 +0000  dj  <dj>  (513f7d1f73cb)
 
 	* Changes, INSTALL, LICENSE, MANIFEST, MANIFEST.SKIP, Makefile.PL,
-	  README, TableParser.pm, test.pl, data/ned.Chomp.data,
-	  data/ned.Decode.data, data/ned.Default.data, data/ned.Trim.data,
-	  data/ned.hdr, data/ned.html, data/screwy.Chomp.data,
-	  data/screwy.Decode.data, data/screwy.Default.data,
-	  data/screwy.Trim.data, data/screwy.hdr, data/screwy.html,
-	  data/table.Chomp.data, data/table.Decode.data,
-	  data/table.Default.data, data/table.Trim.data, data/table.hdr,
-	  data/table.html, data/table2.Chomp.data, data/table2.Decode.data,
-	  data/table2.Default.data, data/table2.Trim.data, data/table2.hdr,
-	  data/table2.html, html/ned.html, html/screwy.html,
-	  html/table.html, html/table2.html, t/class.t, t/contents.t,
-	  t/counts.pl, t/funcs.t, t/methods.t: Major rewrite
+	README, TableParser.pm, data/ned.Chomp.data, data/ned.Decode.data,
+	data/ned.Default.data, data/ned.Trim.data, data/ned.hdr,
+	data/ned.html, data/screwy.Chomp.data, data/screwy.Decode.data,
+	data/screwy.Default.data, data/screwy.Trim.data, data/screwy.hdr,
+	data/screwy.html, data/table.Chomp.data, data/table.Decode.data,
+	data/table.Default.data, data/table.Trim.data, data/table.hdr,
+	data/table.html, data/table2.Chomp.data, data/table2.Decode.data,
+	data/table2.Default.data, data/table2.Trim.data, data/table2.hdr,
+	data/table2.html, html/ned.html, html/screwy.html, html/table.html,
+	html/table2.html, t/class.t, t/contents.t, t/counts.pl, t/funcs.t,
+	t/methods.t, test.pl:
+	2001-12-12 22:16:59 by dj Major rewrite
 
-1999-12-16 13:00  tag initial
+2007-09-19 17:46 -0400  djerius  <djerius@cfa.harvard.edu>  (ea46c684d5de)
 
-1999-12-16 13:00  dj
+	* .hgtags:
+	Added tag initial for changeset 11a58a96c262
 
-	* INSTALL, Changes, MANIFEST, Makefile.PL, TableParser.pm, test.pl,
-	  html/ned.html, html/screwy.html, html/table.html,
-	  html/table2.html: Initial revision
+1999-12-16 18:00 +0000  dj  <dj>  (11a58a96c262 [initial])
 
-1999-12-16 13:00  dj
+	* Changes, INSTALL, MANIFEST, Makefile.PL, TableParser.pm,
+	html/ned.html, html/screwy.html, html/table.html, html/table2.html,
+	test.pl:
+	1999-12-16 18:00:21 by dj Initial revision
 
-	* INSTALL, Changes, MANIFEST, Makefile.PL, TableParser.pm, test.pl,
-	  html/ned.html, html/screwy.html, html/table.html,
-	  html/table2.html: [no log message]
+2007-09-19 17:46 -0400  djerius  <djerius@cfa.harvard.edu>  (11692bba182f)
+
+	* .hgignore:
+	Tailor preparing to convert repo by adding .hgignore
 

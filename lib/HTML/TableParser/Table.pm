@@ -5,6 +5,8 @@ use warnings;
 
 use HTML::Entities;
 
+our $VERSION = '0.36';
+
 sub new
 {
   my $this = shift;
