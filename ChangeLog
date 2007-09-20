@@ -1,0 +1,243 @@
+2007-09-19  Diab Jerius  <djerius@cfa.harvard.edu>
+
+	Tag: 0.35
+
+2007-09-19 21:21 -0400  djerius  <djerius@cfa.harvard.edu>  (2856b191708a [tip])
+
+	* Makefile.PL:
+	switch to Module::Install
+
+2007-09-19 21:21 -0400  djerius  <djerius@cfa.harvard.edu>  (eae5f8ad6b1c)
+
+	* MANIFEST.SKIP:
+	more cruft to ignore
+
+2007-09-19 21:20 -0400  djerius  <djerius@cfa.harvard.edu>  (748e7437cd7a)
+
+	* LICENSE:
+	updated to GPL3
+
+2007-09-19 21:20 -0400  djerius  <djerius@cfa.harvard.edu>  (97709599c2ee)
+
+	* MANIFEST:
+	no longer necessary
+
+2007-09-19 21:19 -0400  djerius  <djerius@cfa.harvard.edu>  (628bc9e0d4a1)
+
+	* README:
+	updated to GPL3
+
+2007-09-19 21:18 -0400  djerius  <djerius@cfa.harvard.edu>  (df8f9fd02b7f)
+
+	* TableParser.pm, lib/HTML/TableParser.pm,
+	lib/HTML/TableParser/Table.pm:
+	separate modules into separate files. rename private methods to
+	satisfy pod-coverage
+
+2007-09-19 21:12 -0400  djerius  <djerius@cfa.harvard.edu>  (0cba157ce5f9)
+
+	* t/00-load.t, t/perlcritic.t, t/pod-coverage.t, t/pod.t:
+	add new tests for pod and perlcritic
+
+2007-09-19 21:12 -0400  djerius  <djerius@cfa.harvard.edu>  (c95a01dc6397)
+
+	* t/contents.t:
+	fix to work with Test::More version 0.71
+
+2007-09-19 21:46 +0000  dj  <dj>  (f60fb810ce45)
+
+	* ChangeLog:
+	2007-09-19 21:46:25 by dj added ChangeLog
+
+2002-09-07 01:32  tag V0_34
+
+2002-09-07 01:32  dj
+
+	* Changes, Makefile.PL, TableParser.pm: requires HTML::Parser 3.26
+	  which fixes callback bug in 3.25
+
+2002-09-03 14:35  tag V0_33
+
+2002-09-03 14:35  dj
+
+	* Changes, TableParser.pm: [no log message]
+
+2002-09-03 14:11  tag V0_32
+
+2002-09-03 14:11  dj
+
+	* MANIFEST, TableParser.pm: [no log message]
+
+2002-09-03 11:36  dj
+
+	* Changes, t/end_table.t, tdata/end_table.html: new tests for extra
+	  </table> tag
+
+2002-09-03 11:36  dj
+
+	* TableParser.pm: extra </table> tags were not handled properly. it
+	  now croaks if it hits an extra </table> tag.
+
+2002-04-20 02:14  tag V0_31
+
+2002-04-20 02:14  dj
+
+	* Changes, Makefile.PL, README, TableParser.pm: [no log message]
+
+2002-04-18 12:53  tag V0_03
+
+2002-04-18 12:53  dj
+
+	* README: [no log message]
+
+2002-04-18 12:50  dj
+
+	* TableParser.pm: - decode_entitites was being called too late in
+	  fix_texts,   so Trim was less than effectual.
+
+	  - added DecodeNBSP attribute to fix nbsp decoding issues.
+
+	  - callbacks for methods and classes can be turned off   by
+	  assigning an undef value to the appropriate key in the   table
+	  request.
+
+	  - the warn callback is also passed the line number now.    this
+	  is an incompatible change in the API.
+
+2002-04-18 12:49  dj
+
+	* Changes, MANIFEST: [no log message]
+
+2002-04-18 09:22  dj
+
+	* t/class-01.t: test of method/class undef
+
+2002-04-17 12:01  dj
+
+	* TableParser.pm: - specification of ids and column names in
+	  matches has been   extended and simplified.  id and cols now may
+	  take	 arrayrefs of things to match. colre is deprecated.
+
+	  - matches can be made using literals, subroutines and qr//
+	  created regexps.  the latter two are automatically recognized.
+
+	  - explicit exclusions and skipping of tables is now possible
+
+	  - improved docs (a bit)
+
+2002-04-17 12:01  dj
+
+	* t/contents.t: new tests for new features
+
+2002-04-17 12:00  dj
+
+	* Changes, README, data/table2.hdr, data/table2.html: [no log
+	  message]
+
+2002-04-12 16:48  tag V0_02
+
+2002-04-12 16:48  dj
+
+	* TableParser.pm: [no log message]
+
+2002-03-11 09:26  dj
+
+	* TableParser.pm: [no log message]
+
+2002-01-30 21:05  dj
+
+	* MANIFEST, README, THANKS: [no log message]
+
+2002-01-30 20:59  dj
+
+	* Changes, TableParser.pm: one could not use id=DEFAULT as a fall
+	  through if a column name match didn't work.  in fact, one
+	  couldn't intersperse id's in a request list; they all had to be
+	  at the beginning.  there's now a well defined order in how
+	  requests are processed.
+
+	  fixing this uncovered another subtle bug.  a header line was
+	  originally recognized only after finishing the first non-header
+	  line.  this lead to the situation that if an embedded table was
+	  in the first non-header row, it would be matched against column
+	  name match requests before the enclosing table, because it would
+	  be completely parsed before the enclosing table's header was even
+	  recognized.  to fix this, we finish off a header in the first
+	  non-header column if the previous row was a header and the
+	  current row isn't a header.
+
+	  added an embedded table test in t/contents.t
+
+	  format of comparison data was wrong. wanted embedded tab between
+	  columns, got character sequence '\t'
+
+	  checking whether a request had been used was 99% foobared.
+
+2002-01-30 20:58  dj
+
+	* t/: common.pl, contents.t: consolidated some code.  now tests
+	  embedded table fixed some errors from before.  how'd it work?
+
+2002-01-30 20:58  dj
+
+	* t/counts.pl: can't reuse parser objects now
+
+2002-01-30 20:57  dj
+
+	* t/req_order.t: new test
+
+2002-01-30 20:57  dj
+
+	* MANIFEST, MANIFEST.SKIP: [no log message]
+
+2002-01-30 20:34  dj
+
+	* data/: table2-1.Chomp.data, table2-1.Decode.data,
+	  table2-1.Default.data, table2-1.Trim.data, table2-1.hdr: new data
+	  for embedded table
+
+2002-01-30 20:33  dj
+
+	* data/: ned.Chomp.data, ned.Decode.data, ned.Default.data,
+	  ned.Trim.data, screwy.Chomp.data, screwy.Decode.data,
+	  screwy.Default.data, screwy.Trim.data, table.Chomp.data,
+	  table.Decode.data, table.Default.data, table.Trim.data,
+	  table2.Chomp.data, table2.Decode.data, table2.Default.data,
+	  table2.Trim.data: really wanted tab, not '\t'.  fixed that
+
+2001-12-12 17:17  tag V0_1
+
+2001-12-12 17:17  dj
+
+	* README: [no log message]
+
+2001-12-12 17:16  dj
+
+	* Changes, INSTALL, LICENSE, MANIFEST, MANIFEST.SKIP, Makefile.PL,
+	  README, TableParser.pm, test.pl, data/ned.Chomp.data,
+	  data/ned.Decode.data, data/ned.Default.data, data/ned.Trim.data,
+	  data/ned.hdr, data/ned.html, data/screwy.Chomp.data,
+	  data/screwy.Decode.data, data/screwy.Default.data,
+	  data/screwy.Trim.data, data/screwy.hdr, data/screwy.html,
+	  data/table.Chomp.data, data/table.Decode.data,
+	  data/table.Default.data, data/table.Trim.data, data/table.hdr,
+	  data/table.html, data/table2.Chomp.data, data/table2.Decode.data,
+	  data/table2.Default.data, data/table2.Trim.data, data/table2.hdr,
+	  data/table2.html, html/ned.html, html/screwy.html,
+	  html/table.html, html/table2.html, t/class.t, t/contents.t,
+	  t/counts.pl, t/funcs.t, t/methods.t: Major rewrite
+
+1999-12-16 13:00  tag initial
+
+1999-12-16 13:00  dj
+
+	* INSTALL, Changes, MANIFEST, Makefile.PL, TableParser.pm, test.pl,
+	  html/ned.html, html/screwy.html, html/table.html,
+	  html/table2.html: Initial revision
+
+1999-12-16 13:00  dj
+
+	* INSTALL, Changes, MANIFEST, Makefile.PL, TableParser.pm, test.pl,
+	  html/ned.html, html/screwy.html, html/table.html,
+	  html/table2.html: [no log message]
+

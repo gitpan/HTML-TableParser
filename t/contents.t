@@ -1,8 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More;
-plan( tests => 130 );
+use Test::More tests => 131;
 
 use IO::File;
 use File::Basename;
