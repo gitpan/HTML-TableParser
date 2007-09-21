@@ -1,5 +1,9 @@
 Revision history for Perl extension HTML::TableParser.
 
+0.37  Fri Sep 21 11:52:34 EDT 2007
+        - incorrect setting of plans if Test::Pod::Coverage wasn't available
+        - quiet inappropriate perlcritic warning
+
 0.36  Thu Sep 20 09:30:35 EDT 2007
         - add version to Table.pm to fix PAUSE indexer error
 

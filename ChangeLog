@@ -1,8 +1,28 @@
-2007-09-20  Diab Jerius  <djerius@cfa.harvard.edu>
+2007-09-21  Diab Jerius  <djerius@cfa.harvard.edu>
 
-	Tag: 0.36 
+	Tag: 0.37
 
-2007-09-20 09:30 -0400  djerius  <djerius@cfa.harvard.edu>  (192398e71e2e [tip])
+2007-09-21 11:50 -0400  djerius  <djerius@cfa.harvard.edu>  (3a78dd44540c [tip])
+
+	* t/pod-coverage.t:
+	incorrect setting of plans if Test::Pod::Coverage wasn't available
+
+2007-09-21 11:49 -0400  djerius  <djerius@cfa.harvard.edu>  (3783855a2529)
+
+	* lib/HTML/TableParser.pm, lib/HTML/TableParser/Table.pm:
+	quiet inappropriate perlcritic warning
+
+2007-09-20 09:32 -0400  djerius  <djerius@cfa.harvard.edu>  (5319a84f952d)
+
+	* .hgtags:
+	Added tag 0.36 for changeset 41f15244f68e
+
+2007-09-20 09:32 -0400  djerius  <djerius@cfa.harvard.edu>  (41f15244f68e [0.36])
+
+	* ChangeLog, Changes:
+	update for release
+
+2007-09-20 09:30 -0400  djerius  <djerius@cfa.harvard.edu>  (192398e71e2e)
 
 	* lib/HTML/TableParser.pm, lib/HTML/TableParser/Table.pm:
 	add version to Table.pm to fix PAUSE indexer error
