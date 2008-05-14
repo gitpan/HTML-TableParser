@@ -6,7 +6,7 @@ use Module::Install::Base;
 
 use vars qw{$VERSION $ISCORE @ISA};
 BEGIN {
-	$VERSION = '0.67';
+	$VERSION = '0.68';
 	$ISCORE  = 1;
 	@ISA     = qw{Module::Install::Base};
 }
@@ -307,8 +307,7 @@ sub license_from {
         my @phrases      = (
             'under the same (?:terms|license) as perl itself' => 'perl',        1,
             'GNU public license'                              => 'gpl',         1,
-            'GNU general public license'                      => 'gpl',         1,
-            'GNU lesser public license'                       => 'lgpl',        1,
+            'GNU lesser public license'                       => 'gpl',         1,
             'BSD license'                                     => 'bsd',         1,
             'Artistic license'                                => 'artistic',    1,
             'GPL'                                             => 'gpl',         1,
