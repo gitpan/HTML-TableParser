@@ -34,7 +34,7 @@ use HTML::TableParser::Table;
 
 our @ISA = qw(HTML::Parser);
 
-our $VERSION = '0.37.1';
+our $VERSION = '0.38';
 
 # Preloaded methods go here.
 
