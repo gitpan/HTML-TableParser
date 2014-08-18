@@ -28,7 +28,7 @@ sub start
   print STDERR "start: $tbl_id\n" if $verbose;
 
   die( "whoops! we're already in the middle of a table!\n" )
-    if defined @parse_data;
+    if @parse_data;
   @parse_data = ();
 }
 

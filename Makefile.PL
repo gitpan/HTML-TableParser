@@ -4,13 +4,17 @@ use warnings;
 use inc::Module::Install;
 
 name 'HTML-TableParser';
+license 'gpl3';
+
+auto_license( holder => 'Smithsonian Astrophysical Observatory' );
 
 all_from 'lib/HTML/TableParser.pm';
 
-requires 'HTML::Entities';
-requires 'HTML::Parser' => 3.26;
-build_requires 'Test::More' => 0.32;
+repository 'http://bitbucket.org/djerius/html-tableparser';
 
-auto_install;
+author_tests( 'xt' );
+
+cpanfile;
+
 WriteAll;
 
