@@ -1,5 +1,12 @@
 Revision history for Perl extension HTML::TableParser.
 
+0.38_02	2014-08-18T15:17:53-0400
+
+  [PACKAGING]
+
+    * don't distribute MYMETA files
+    * update ChangeLog
+
 0.38_01 2014-08-18T10:55:06-0400
 
   [BUILD FIXES]

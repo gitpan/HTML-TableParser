@@ -1,8 +1,73 @@
-2007-09-21  Diab Jerius  <djerius@cfa.harvard.edu>
+2014-08-18 15:19 -0400  Diab Jerius  <djerius@cfa.harvard.edu>  (6d31ae6ae6a7 [tip])
 
-	Tag: 0.37
+	* Changes, lib/HTML/TableParser.pm:
+	update logs and version for release
 
-2007-09-21 11:50 -0400  djerius  <djerius@cfa.harvard.edu>  (3a78dd44540c [tip])
+2014-08-18 15:18 -0400  Diab Jerius  <djerius@cfa.harvard.edu>  (a586c72c83af)
+
+	* MANIFEST.SKIP:
+	don't distribute MYMETA files
+
+2014-08-18 12:18 -0400  Diab Jerius  <djerius@cfa.harvard.edu>  (641d87cd2e78)
+
+	* ChangeLog: deleted file.
+	* ChangeLog:
+	don't track ChangeLog; it's a derived product
+
+2014-08-18 12:16 -0400  Diab Jerius  <djerius@cfa.harvard.edu>  (d150b3bdd19f)
+
+	* .hgtags:
+	Added tag 0.38_01 for changeset b5e0152958a9
+
+2014-08-18 12:15 -0400  Diab Jerius  <djerius@cfa.harvard.edu>  (b5e0152958a9 [0.38_01])
+
+	* Changes, lib/HTML/TableParser.pm:
+	update logs and version for release
+
+2014-08-18 10:18 -0400  Diab Jerius  <djerius@cfa.harvard.edu>  (153e4c40701e)
+
+	* cpanfile, xt/00-compile.t, xt/changes.t, xt/nobreakpoints.t,
+	xt/perlcritic.t, xt/pod-coverage.t, xt/pod.t: new file.
+	* LICENSE, t/perlcritic.t, t/pod-coverage.t, t/pod.t: deleted file.
+	* Changes, LICENSE, Makefile.PL, cpanfile, lib/HTML/TableParser.pm,
+	t/perlcritic.t, t/pod-coverage.t, t/pod.t, xt/00-compile.t,
+	xt/changes.t, xt/nobreakpoints.t, xt/perlcritic.t, xt/pod-
+	coverage.t, xt/pod.t:
+	upgrade build infrastructre; use cpanfile, authortests,
+	CPAN::Changes
+
+2014-08-18 10:17 -0400  Diab Jerius  <djerius@cfa.harvard.edu>  (93401bbfb425)
+
+	* t/contents.t:
+	remove bogus and deprecated defined @array
+
+2008-05-13 22:54 -0400  djerius  <djerius@cfa.harvard.edu>  (edbdc3889e71)
+
+	* .hgtags:
+	no code changes -- CPAN distribution had bad META.yml file
+
+2008-05-13 22:53 -0400  djerius  <djerius@cfa.harvard.edu>  (d41c9e970c9c [0.38])
+
+	* lib/HTML/TableParser/Table.pm:
+	keep versions the same
+
+2008-05-13 22:30 -0400  djerius  <djerius@cfa.harvard.edu>  (e10688237c23)
+
+	* Changes, lib/HTML/TableParser.pm:
+	no code changes -- CPAN distribution had bad META.yml file
+
+2007-09-21 11:54 -0400  djerius  <djerius@cfa.harvard.edu>  (a3b6a9282706)
+
+	* .hgtags:
+	Added tag 0.37 for changeset f8aab23730f6
+
+2007-09-21 11:53 -0400  djerius  <djerius@cfa.harvard.edu>  (f8aab23730f6 [0.37])
+
+	* ChangeLog, Changes, lib/HTML/TableParser.pm,
+	lib/HTML/TableParser/Table.pm:
+	update for release
+
+2007-09-21 11:50 -0400  djerius  <djerius@cfa.harvard.edu>  (3a78dd44540c)
 
 	* t/pod-coverage.t:
 	incorrect setting of plans if Test::Pod::Coverage wasn't available
@@ -54,6 +119,7 @@
 
 2007-09-19 21:20 -0400  djerius  <djerius@cfa.harvard.edu>  (97709599c2ee)
 
+	* MANIFEST: deleted file.
 	* MANIFEST:
 	no longer necessary
 
@@ -64,6 +130,8 @@
 
 2007-09-19 21:18 -0400  djerius  <djerius@cfa.harvard.edu>  (df8f9fd02b7f)
 
+	* lib/HTML/TableParser.pm, lib/HTML/TableParser/Table.pm: new file.
+	* TableParser.pm: deleted file.
 	* TableParser.pm, lib/HTML/TableParser.pm,
 	lib/HTML/TableParser/Table.pm:
 	separate modules into separate files. rename private methods to
@@ -71,6 +139,7 @@
 
 2007-09-19 21:12 -0400  djerius  <djerius@cfa.harvard.edu>  (0cba157ce5f9)
 
+	* t/00-load.t, t/perlcritic.t, t/pod-coverage.t, t/pod.t: new file.
 	* t/00-load.t, t/perlcritic.t, t/pod-coverage.t, t/pod.t:
 	add new tests for pod and perlcritic
 
@@ -81,6 +150,7 @@
 
 2007-09-19 21:46 +0000  dj  <dj>  (f60fb810ce45)
 
+	* ChangeLog: new file.
 	* ChangeLog:
 	2007-09-19 21:46:25 by dj added ChangeLog
 
@@ -117,6 +187,7 @@
 
 2002-09-03 15:36 +0000  dj  <dj>  (836e5206bc16)
 
+	* t/end_table.t, tdata/end_table.html: new file.
 	* Changes, t/end_table.t, tdata/end_table.html:
 	2002-09-03 15:36:54 by dj new tests for extra </table> tag
 
@@ -150,8 +221,8 @@
 
 	* TableParser.pm:
 	2002-04-18 16:50:16 by dj
-	- decode_entitites was being called too late in fix_texts, so Trim
-	was less than effectual.
+	- decode_entitites was being called too late in fix_texts, so Trim was
+	less than effectual.
 
 	- added DecodeNBSP attribute to fix nbsp decoding issues.
 
@@ -168,6 +239,7 @@
 
 2002-04-18 13:22 +0000  dj  <dj>  (a7f7a965932d)
 
+	* t/class-01.t: new file.
 	* t/class-01.t:
 	2002-04-18 13:22:25 by dj test of method/class undef
 
@@ -213,6 +285,7 @@
 
 2002-01-31 02:06 +0000  dj  <dj>  (476ba2ba3831)
 
+	* THANKS: new file.
 	* MANIFEST, README, THANKS:
 	2002-01-31 02:05:05 by dj
 
@@ -244,6 +317,7 @@
 
 2002-01-31 01:58 +0000  dj  <dj>  (595fbdeb6f11)
 
+	* t/common.pl: new file.
 	* t/common.pl, t/contents.t:
 	2002-01-31 01:58:38 by dj consolidated some code. now tests embedded
 	table fixed some errors from before. how'd it work?
@@ -255,6 +329,7 @@
 
 2002-01-31 01:57 +0000  dj  <dj>  (5678b2ab5146)
 
+	* t/req_order.t: new file.
 	* t/req_order.t:
 	2002-01-31 01:57:51 by dj new test
 
@@ -265,6 +340,9 @@
 
 2002-01-31 01:34 +0000  dj  <dj>  (aa7ebe60ba56)
 
+	* data/table2-1.Chomp.data, data/table2-1.Decode.data,
+	data/table2-1.Default.data, data/table2-1.Trim.data,
+	data/table2-1.hdr: new file.
 	* data/table2-1.Chomp.data, data/table2-1.Decode.data,
 	data/table2-1.Default.data, data/table2-1.Trim.data,
 	data/table2-1.hdr:
@@ -293,6 +371,19 @@
 
 2001-12-12 22:17 +0000  dj  <dj>  (513f7d1f73cb)
 
+	* LICENSE, MANIFEST.SKIP, README, data/ned.Chomp.data,
+	data/ned.Decode.data, data/ned.Default.data, data/ned.Trim.data,
+	data/ned.hdr, data/ned.html, data/screwy.Chomp.data,
+	data/screwy.Decode.data, data/screwy.Default.data,
+	data/screwy.Trim.data, data/screwy.hdr, data/screwy.html,
+	data/table.Chomp.data, data/table.Decode.data,
+	data/table.Default.data, data/table.Trim.data, data/table.hdr,
+	data/table.html, data/table2.Chomp.data, data/table2.Decode.data,
+	data/table2.Default.data, data/table2.Trim.data, data/table2.hdr,
+	data/table2.html, t/class.t, t/contents.t, t/counts.pl, t/funcs.t,
+	t/methods.t: new file.
+	* INSTALL, html/ned.html, html/screwy.html, html/table.html,
+	html/table2.html, test.pl: deleted file.
 	* Changes, INSTALL, LICENSE, MANIFEST, MANIFEST.SKIP, Makefile.PL,
 	README, TableParser.pm, data/ned.Chomp.data, data/ned.Decode.data,
 	data/ned.Default.data, data/ned.Trim.data, data/ned.hdr,
@@ -309,6 +400,7 @@
 
 2007-09-19 17:46 -0400  djerius  <djerius@cfa.harvard.edu>  (ea46c684d5de)
 
+	* .hgtags: new file.
 	* .hgtags:
 	Added tag initial for changeset 11a58a96c262
 
@@ -316,11 +408,15 @@
 
 	* Changes, INSTALL, MANIFEST, Makefile.PL, TableParser.pm,
 	html/ned.html, html/screwy.html, html/table.html, html/table2.html,
+	test.pl: new file.
+	* Changes, INSTALL, MANIFEST, Makefile.PL, TableParser.pm,
+	html/ned.html, html/screwy.html, html/table.html, html/table2.html,
 	test.pl:
 	1999-12-16 18:00:21 by dj Initial revision
 
 2007-09-19 17:46 -0400  djerius  <djerius@cfa.harvard.edu>  (11692bba182f)
 
+	* .hgignore: new file.
 	* .hgignore:
 	Tailor preparing to convert repo by adding .hgignore
 
