@@ -1,4 +1,19 @@
-2014-08-18 15:19 -0400  Diab Jerius  <djerius@cfa.harvard.edu>  (6d31ae6ae6a7 [tip])
+2014-08-22 13:47 -0400  Diab Jerius  <djerius@cfa.harvard.edu>  (fcddaa10e696 [tip])
+
+	* .hgtags:
+	Added tag 0.39 for changeset 699f32458562
+
+2014-08-22 13:47 -0400  Diab Jerius  <djerius@cfa.harvard.edu>  (699f32458562 [0.39])
+
+	* Changes, lib/HTML/TableParser.pm:
+	update logs and version for release
+
+2014-08-18 15:20 -0400  Diab Jerius  <djerius@cfa.harvard.edu>  (57a726f11191)
+
+	* .hgtags:
+	Added tag 0.38_02 for changeset 6d31ae6ae6a7
+
+2014-08-18 15:19 -0400  Diab Jerius  <djerius@cfa.harvard.edu>  (6d31ae6ae6a7 [0.38_02])
 
 	* Changes, lib/HTML/TableParser.pm:
 	update logs and version for release

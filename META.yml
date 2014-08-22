@@ -9,7 +9,7 @@ configure_requires:
   CPAN::Meta: '0'
   ExtUtils::MakeMaker: '6.59'
 dynamic_config: '0'
-generated_by: 'Module::Install version 1.10, CPAN::Meta::Converter version 2.131560'
+generated_by: 'Module::Install version 1.10, CPAN::Meta::Converter version 2.142060'
 license: unknown
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -26,4 +26,4 @@ requires:
   perl: v5.8.1
 resources:
   repository: http://bitbucket.org/djerius/html-tableparser
-version: 0.38_02
+version: '0.39'
