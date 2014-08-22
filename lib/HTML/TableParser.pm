@@ -35,7 +35,7 @@ use HTML::TableParser::Table;
 
 our @ISA = qw(HTML::Parser);
 
-our $VERSION = '0.39';
+our $VERSION = '0.40';
 
 # Preloaded methods go here.
 
@@ -629,7 +629,7 @@ i.e.,
 
   $p = HTML::TableParser->new( \@reqs, { Chomp => 1 } );
 
-will set B<Chomp> on for all of the table requests, unless overriden
+will set B<Chomp> on for all of the table requests, unless overridden
 by them.  The data cleanup operations are documented above; C<MultiMatch>
 is documented in L</Table Requests>.
 

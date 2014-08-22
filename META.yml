@@ -26,4 +26,4 @@ requires:
   perl: v5.8.1
 resources:
   repository: http://bitbucket.org/djerius/html-tableparser
-version: '0.39'
+version: '0.40'
